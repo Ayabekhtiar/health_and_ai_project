@@ -1,120 +1,294 @@
 # Transplant or Wait
 
-Prognostic decision support for allogeneic transplant timing in myelodysplastic syndromes.
+**A decision-support tool for transplant timing in myelodysplastic syndromes (MDS)**
 
-Health and AI · **Aya Bekhtiar, Apolline Hadjal**
+Aya Bekhtiar, Apolline Hadjal
 
-At the end of the diagnostic work-up, the tool estimates a patient's risk of death within
-2 years under standard care, and places it against the 30 % threshold at which early
-transplant has been shown to prolong life (IPSS-M Moderate-High, Tentori et al. 2024).
-It is IPSS-M with its published weights, recalibrated on 2,662 patients from 23 centres,
-with scope checks, uncertainty ranges and a one-page patient card. It does not estimate the
-benefit of transplant: the file records no treatment, age or fitness.
+## 1. What does this project do?
 
-## Deliverables
+This tool estimates a patient's risk of dying within two years under standard care. It helps identify patients for whom early allogeneic stem cell transplantation may be worth considering.
 
-| Deliverable | Where |
-| --- | --- |
-| Notebooks, with every graph | `notebooks/01_data_audit.ipynb`, `02_model_comparison.ipynb`, `03_final_model_and_tool.ipynb` (already run: outputs visible without running) |
-| Working system | `scripts/predict.py` (scores patients), `outputs/cards/` (patient cards) |
-| Frozen model | `models/final_model.json` |
-| Code used by the notebooks | `mds_tool/`: `cohort.py` (loads the two files, cohort flow), `cytogenetics.py` (reads karyotypes, IPSS-R cytogenetic group), `features.py` (one row per patient, scope checks), `scores.py` (IPSS-R and IPSS-M with published weights), `model.py` (candidate models), `metrics.py` (C-index, AUC, Brier, calibration, net benefit, with censoring), `tool.py` (risk, range, band, patient card), `plotting.py` (figures) |
-| Model freezing | `scripts/03_train_final.py`: refits the selected model on all patients and writes `models/final_model.json`, `outputs/tables/model_features.csv`, `outputs/tables/final_model_weights.csv` and `outputs/train_log.txt` |
-| Tests | `tests/test_cytogenetics.py` (karyotype parser on known cases), `tests/test_scores.py` (our IPSS-M matches the official implementation) |
-| Training data | `df_clinical_train.tsv` (clinical data, one row per patient), `mut_clinical_train.tsv` (gene mutations, one row per mutation) |
-| Figures | `outputs/figures/`: F0 decision timeline, F1–F4 data audit, F5–F9 model comparison (discrimination, calibration, decision curve, subgroups, per centre), F10 patient cards |
-| Tables | `outputs/tables/`: cohort flow, centres, missing inputs, centre heterogeneity, 2-year mortality of the reference groups, model features and weights |
-| Validation results | `outputs/validation/`: out-of-centre predictions, metrics, paired C-index differences, calibration deciles, decision curve, decision rules, reclassification against IPSS-R, subgroups, per-centre results, `selection.json` (model chosen by the rule), `loco_cache.json` (cache fingerprint) |
-| Other outputs | `outputs/audit.json` (data audit summary), `outputs/predictions_training_file.csv` (tool output for every patient in the training file) |
-| Rebuild everything | `run_all.sh` (tests, notebooks, model freezing, cards; `--fresh` refits the held-out models) |
-| Environment | `requirements.txt` (pinned package versions) |
+The tool uses the published IPSS-M scoring system, recalibrated using **2,662 patients from 23 centres**.
 
-## Read the notebooks
+It compares the estimated two-year mortality risk with a **30% threshold**. In the IPSS-M Moderate-High group, this threshold is based on evidence that early transplantation can prolong life (Tentori et al., 2024).
 
-Start here. Notebooks 1 and 2 are where the data audit and the model comparison are done: they
-produce the report's figures and result tables. Notebook 3 explains the frozen model and the tool.
-All three use the code in `mds_tool/` and are saved with their outputs and graphs.
+The tool also provides:
+- An uncertainty range around the risk estimate.
+- A risk category.
+- Checks to identify patients outside the model's intended scope.
+- A one-page patient card.
 
-| Notebook | What it shows | Run time |
-| --- | --- | --- |
-| `01_data_audit.ipynb` | The file, karyotype parsing, cohort flow, censoring, missing inputs, centres, IPSS-R and IPSS-M groups, overlap with the IPSS-M cohort | under 1 min |
-| `02_model_comparison.ipynb` | Leave-one-centre-out comparison of IPSS-R, IPSS-M and three refitted models; selection rule; calibration; decision curve; reclassification; failure modes | about 3 min (4 min with a fresh refit) |
-| `03_final_model_and_tool.ipynb` | The two locally fitted numbers, the risk formula, features and weights, one prediction by hand, bands and uncertainty, the patient card, scoring new patients | under 1 min |
+**Important limitations:** The tool estimates mortality risk under standard care; it does not estimate the individual benefit of transplantation. The available data do not include treatment, age or fitness. The tool must be recalibrated using local patient data before clinical use.
 
-Open them in VS Code or with `.venv/bin/jupyter notebook notebooks/`.
+## 2. Quick start
 
-## Run it
+### What you need
+
+- Python and the packages listed in `requirements.txt`.
+- The two training files:
+  - `df_clinical_train.tsv`: clinical data, one row per patient.
+  - `mut_clinical_train.tsv`: gene mutation data, one row per mutation.
+
+### Run the complete project
+
+Open a terminal in the project folder and run:
 
 ```bash
-./run_all.sh            # about 4 min
-./run_all.sh --fresh    # also refits the leave-one-centre-out models, about 5 min
+./run_all.sh
 ```
 
-Rebuilds everything from `df_clinical_train.tsv` and `mut_clinical_train.tsv` (creates `.venv` from
-`requirements.txt` on first run): tests, notebook 1, notebook 2, freezing the model
-(`scripts/03_train_final.py`), example cards, notebook 3. Notebook 2 fits its 23 held-out centres in
-parallel and caches their predictions in `outputs/validation/` with a fingerprint of the data and of
-`mds_tool/`; the cache is reused only while both are unchanged, and a fresh refit gives bit-identical
-results.
+The first run creates a virtual environment (`.venv`) and installs the required packages. The script then runs the tests, notebooks, model training and freezing, and patient-card generation.
 
-To score new patients, for example the held-out test set:
+**Expected runtime:** about 4 minutes.
+
+To rerun the leave-one-centre-out model comparisons from scratch, use:
 
 ```bash
-.venv/bin/python scripts/predict.py --clinical test_clinical.tsv --mutations test_mutations.tsv --out predictions_test.csv --cards outputs/cards_test
+./run_all.sh --fresh
 ```
 
-`risk_score` ranks patients (higher = worse) for a C-index; `risk_2y`, its range and `band`
-(HIGHER, LOWER, BORDERLINE, OUT) are the decision outputs.
+**Expected runtime:** about 5 minutes.
 
-## The model: features and weights
+The script reuses cached validation predictions when the data and `mds_tool/` code have not changed. The cache includes a fingerprint of both. A fresh refit produces bit-identical results.
 
-2-year risk ≈ 1 − 0.684^(e^(0.57 × IPSS-M score)). The IPSS-M score is the published weighted
-sum of 22 inputs, unchanged; only the slope (0.57) and the baseline were fitted on this data.
-Hazard ratio = how much the risk of death is multiplied per unit, all else equal
-(source: `outputs/tables/model_features.csv`, written by `scripts/03_train_final.py`).
+## 3. Simple project workflow
 
-| Feature | Unit or definition | Published HR | In this cohort |
-| --- | --- | --- | --- |
-| Haemoglobin | per g/dL | 0.84 | 0.87 |
-| Platelets | per 100 ×10⁹/L, capped at 250 | 0.80 | 0.83 |
-| Marrow blasts | per 5 %, capped at 20 % | 1.42 | 1.34 |
-| Karyotype risk group | per IPSS-R step, very good (0) to very poor (4) | 1.33 | 1.27 |
-| TP53 multi-hit | 2+ TP53 mutations, or 1 with VAF > 55 % or 17p loss | 3.25 | 2.65 |
-| FLT3 mutation | yes / no | 2.22 | 1.94 |
-| KMT2A (MLL) partial tandem duplication | yes / no | 2.22 | 1.94 |
+The project follows these steps:
+
+```text
+Input data
+    |
+    v
+1. Check and understand the data
+    |
+    v
+2. Compare and validate the models
+    |
+    v
+3. Freeze the selected model
+    |
+    v
+4. Score patients and generate patient cards
+```
+
+| Step | What happens | Where |
+|---|---|---|
+| 1. Data audit | Check the files, patient cohort, missing data, centres, karyotypes and existing risk scores. | `notebooks/01_data_audit.ipynb` |
+| 2. Model comparison | Compare IPSS-R, IPSS-M and alternative models across held-out centres. Evaluate performance and select the model using a predefined rule. | `notebooks/02_model_comparison.ipynb` |
+| 3. Freeze the model | Refit the selected model on all available patients and save its parameters. | `scripts/03_train_final.py` |
+| 4. Use the tool | Calculate patient risks, uncertainty ranges and risk categories; generate patient cards. | `scripts/predict.py` and `notebooks/03_final_model_and_tool.ipynb` |
+
+## 4. Read the notebooks
+
+The notebooks contain the analyses, graphs and results. They have already been run, so their saved outputs can be viewed without executing them again.
+
+| Notebook | What you will learn | Approximate runtime |
+|---|---|---|
+| `01_data_audit.ipynb` | Input files, karyotype parsing, cohort flow, censoring, missing data, centre differences, IPSS-R/IPSS-M groups and overlap with the IPSS-M cohort. | Under 1 minute |
+| `02_model_comparison.ipynb` | Model comparison, model selection, calibration, decision curves, reclassification, subgroup performance and failure modes. | 3 minutes; 4 minutes with a fresh refit |
+| `03_final_model_and_tool.ipynb` | The final model, its formula and weights, a worked prediction, risk categories, uncertainty ranges, patient cards and scoring new patients. | Under 1 minute |
+
+**How to open them:**
+
+Open the project in VS Code, or run:
+
+```bash
+.venv/bin/jupyter notebook notebooks/
+```
+
+All notebooks use the shared code in `mds_tool/`.
+
+## 5. Score new patients
+
+Use `scripts/predict.py` to score a new patient dataset.
+
+Your clinical file must contain one row per patient. Your mutation file must contain one row per mutation, linked to the corresponding patient.
+
+Example using test data:
+
+```bash
+.venv/bin/python scripts/predict.py \
+  --clinical test_clinical.tsv \
+  --mutations test_mutations.tsv \
+  --out predictions_test.csv \
+  --cards outputs/cards_test
+```
+
+Replace the example input paths with your own files. The command writes:
+- `predictions_test.csv`: patient-level predictions.
+- `outputs/cards_test/`: generated patient cards.
+
+### Understanding the results
+
+| Output | Meaning |
+|---|---|
+| `risk_score` | Relative risk ranking. Higher values indicate worse prognosis; used for the C-index. |
+| `risk_2y` | Estimated probability of death within two years under standard care. |
+| Risk range | Uncertainty range around the estimated risk. |
+| `band` | Risk category: `HIGHER`, `LOWER`, `BORDERLINE` or `OUT`. |
+
+The risk categories help interpret the estimate against the decision threshold. `OUT` indicates that the patient is outside the tool's intended scope.
+
+**Do not interpret these categories as a personalised estimate of transplant benefit.** The tool supports risk assessment, not a treatment decision on its own.
+
+## 6. How the model works
+
+The tool keeps the published IPSS-M weighted score unchanged and recalibrates its relationship with mortality using the project cohort.
+
+The two fitted values are:
+- **Slope:** 0.57
+- **Baseline survival at two years:** 0.684
+
+The estimated two-year mortality risk is:
+
+\[
+\text{Risk}_{2y}
+=1-0.684^{\exp(0.57\times\text{IPSS-M score})}
+\]
+
+The IPSS-M score is calculated from its published weighted sum of 22 inputs.
+
+A hazard ratio (HR) describes how the relative risk of death changes with a feature, all else being equal. An HR above 1 indicates higher risk; below 1 indicates lower risk.
+
+The table below compares the published hazard ratios with those observed in this cohort. The cohort values are reported in `outputs/tables/model_features.csv`, generated by `scripts/03_train_final.py`.
+
+### Model features and hazard ratios
+
+| Feature | Unit or definition | Published HR | Cohort HR |
+|---|---|---:|---:|
+| Haemoglobin | Per g/dL | 0.84 | 0.87 |
+| Platelets | Per 100 × 10⁹/L, capped at 250 | 0.80 | 0.83 |
+| Bone marrow blasts | Per 5%, capped at 20% | 1.42 | 1.34 |
+| Karyotype risk group | Per IPSS-R step, from very good (0) to very poor (4) | 1.33 | 1.27 |
+| TP53 multi-hit | 2+ TP53 mutations, or 1 mutation with VAF above 55% or 17p loss | 3.25 | 2.65 |
+| FLT3 mutation | Yes/no | 2.22 | 1.94 |
+| KMT2A (MLL) partial tandem duplication | Yes/no | 2.22 | 1.94 |
 | SF3B1 with del(5q) | SF3B1 mutated with isolated del(5q) | 1.66 | 1.52 |
-| NPM1 · RUNX1 · NRAS · ETV6 · IDH2 | yes / no | 1.54 · 1.53 · 1.52 · 1.48 · 1.46 | 1.43 · 1.42 · 1.41 · 1.38 · 1.37 |
-| CBL · EZH2 · U2AF1 · SRSF2 · DNMT3A · ASXL1 · KRAS | yes / no | 1.34 · 1.31 · 1.28 · 1.27 · 1.25 · 1.24 · 1.22 | 1.28 · 1.25 · 1.23 · 1.22 · 1.20 · 1.19 · 1.18 |
-| SF3B1, favourable form | SF3B1 mutated, no del(5q), none of SRSF2, STAG2, BCOR, BCORL1, RUNX1, NRAS | 0.92 | 0.94 |
-| Other driver genes | count of BCOR, BCORL1, CEBPA, ETNK1, GATA2, GNB1, IDH1, NF1, PHF6, PPM1D, PRPF8, PTPN11, SETBP1, STAG2, WT1, capped at 2 | 1.26 per gene | 1.21 per gene |
+| NPM1 | Mutation present/absent | 1.54 | 1.43 |
+| RUNX1 | Mutation present/absent | 1.53 | 1.42 |
+| NRAS | Mutation present/absent | 1.52 | 1.41 |
+| ETV6 | Mutation present/absent | 1.48 | 1.38 |
+| IDH2 | Mutation present/absent | 1.46 | 1.37 |
+| CBL | Mutation present/absent | 1.34 | 1.28 |
+| EZH2 | Mutation present/absent | 1.31 | 1.25 |
+| U2AF1 | Mutation present/absent | 1.28 | 1.23 |
+| SRSF2 | Mutation present/absent | 1.27 | 1.22 |
+| DNMT3A | Mutation present/absent | 1.25 | 1.20 |
+| ASXL1 | Mutation present/absent | 1.24 | 1.19 |
+| KRAS | Mutation present/absent | 1.22 | 1.18 |
+| Favourable SF3B1 form | SF3B1 mutated, no del(5q), and none of SRSF2, STAG2, BCOR, BCORL1, RUNX1 or NRAS | 0.92 | 0.94 |
+| Other driver genes | Count of BCOR, BCORL1, CEBPA, ETNK1, GATA2, GNB1, IDH1, NF1, PHF6, PPM1D, PRPF8, PTPN11, SETBP1, STAG2 and WT1; capped at 2 | 1.26 per gene | 1.21 per gene |
 
-## Layout
+The complete feature definitions, published weights and fitted parameters are available in the notebooks and output tables.
 
-```
-mds_tool/      cytogenetics.py (karyotype parser), features.py, scores.py (IPSS-R, IPSS-M),
-               model.py, metrics.py (censoring-aware), tool.py (bands, cards), plotting.py
-notebooks/     01_data_audit -> 02_model_comparison -> (scripts/03_train_final.py) -> 03_final_model_and_tool
-scripts/       03_train_final.py (freeze the model), predict.py (score new patients)
-report/        Transplant_or_Wait_report.pdf and its LaTeX source (.tex)
-tests/         karyotype parser, IPSS-M vs the official package
-outputs/       figures/, tables/, validation/, cards/, audit.json, logs
-models/        final_model.json
-```
+## 7. Model validation and results
 
-## Headline results (each centre held out in turn, 2,382 patients)
+The model was evaluated using **leave-one-centre-out validation**: each centre was held out in turn, and predictions were evaluated on patients from that centre. The results below cover 2,382 patients.
 
-| | Harrell C | AUC at 2 y | Observed / expected |
-| --- | --- | --- | --- |
+| Model | Harrell C-index (95% CI) | AUC at 2 years | Observed / expected mortality |
+|---|---:|---:|---:|
 | IPSS-R (reference) | 0.707 (0.691–0.723) | 0.754 | 0.99 |
-| Tool (IPSS-M, recalibrated) | 0.750 (0.735–0.766) | 0.809 | 0.98 |
+| Recalibrated IPSS-M tool | 0.750 (0.735–0.766) | 0.809 | 0.98 |
 
-Refitted models (22 or 35 variables, boosted trees) did not beat IPSS-M. Main failure mode:
-absolute risk differs between centres (observed / expected 0.57 to 1.41), so the tool must be
-recalibrated on local patients before use.
+**What do these numbers mean?**
 
-## Notes
+- **C-index:** Measures how well the model ranks patients by risk. Higher is better.
+- **AUC at two years:** Measures how well the model distinguishes patients who die within two years from those who do not, accounting for the evaluation method. Higher is better.
+- **Observed / expected mortality:** Compares actual deaths with predicted deaths. A value near 1 indicates good overall calibration.
 
-- `.venv/` is about 400 MB; delete it before zipping the folder. `run_all.sh` recreates it.
-- To rebuild the report PDF after editing the `.tex`: `cd report && tectonic Transplant_or_Wait_report.tex`
-  (any LaTeX engine works; figures are read from `outputs/figures/`).
-- The project brief in this folder is the instructor's material and is not pushed (see `.gitignore`).
+Alternative models using 22 or 35 variables and boosted trees did not outperform IPSS-M.
+
+**Main limitation:** Absolute mortality risk varied substantially between centres. Observed-to-expected ratios ranged from 0.57 to 1.41. Local recalibration is therefore needed before clinical use.
+
+## 8. Where to find project files
+
+### Main folders and files
+
+| Location | Contents |
+|---|---|
+| `notebooks/` | Three notebooks covering the data audit, model comparison and final tool. |
+| `scripts/predict.py` | Scores new patients and generates patient cards. |
+| `scripts/03_train_final.py` | Fits the final model and saves its parameters and feature tables. |
+| `mds_tool/` | Shared code used by the notebooks and prediction tool. |
+| `models/final_model.json` | Saved final model parameters. |
+| `tests/` | Automated tests for karyotype parsing and IPSS-M scoring. |
+| `outputs/figures/` | All project figures. |
+| `outputs/tables/` | Cohort, centre, missing-data, mortality, feature and weight tables. |
+| `outputs/validation/` | Validation predictions, performance metrics, calibration, decision curves, subgroup and centre results. |
+| `outputs/cards/` | Generated patient cards. |
+| `outputs/audit.json` | Summary of the data audit. |
+| `outputs/predictions_training_file.csv` | Predictions for every patient in the training file. |
+| `outputs/train_log.txt` | Final model training log. |
+| `report/` | Project report in PDF and LaTeX source. |
+| `requirements.txt` | Pinned Python package versions. |
+| `run_all.sh` | Runs the complete project workflow. |
+
+### What is inside `mds_tool/`?
+
+| File | Purpose |
+|---|---|
+| `cohort.py` | Loads the clinical and mutation files and builds the cohort flow. |
+| `cytogenetics.py` | Parses karyotypes and assigns IPSS-R cytogenetic risk groups. |
+| `features.py` | Creates one feature row per patient and checks model scope. |
+| `scores.py` | Calculates IPSS-R and IPSS-M using published weights. |
+| `model.py` | Defines candidate models. |
+| `metrics.py` | Calculates the C-index, AUC, Brier score, calibration and net benefit, accounting for censoring. |
+| `tool.py` | Calculates risk estimates, uncertainty ranges, categories and patient cards. |
+| `plotting.py` | Generates figures. |
+
+### Important output files
+
+The model-freezing script (`scripts/03_train_final.py`) generates:
+
+- `models/final_model.json`: final model parameters.
+- `outputs/tables/model_features.csv`: model features and hazard ratios.
+- `outputs/tables/final_model_weights.csv`: final model weights.
+- `outputs/train_log.txt`: training log.
+
+The validation folder, `outputs/validation/`, contains:
+
+- Predictions for held-out centres.
+- Performance metrics and paired C-index differences.
+- Calibration deciles and decision curves.
+- Decision rules and reclassification against IPSS-R.
+- Subgroup and per-centre results.
+- `selection.json`: the model selected by the predefined rule.
+- `loco_cache.json`: cache fingerprint.
+
+Other audit outputs include cohort flow, centre information, missing inputs, centre heterogeneity and two-year mortality in the reference groups.
+
+## 9. Tests and reproducibility
+
+The automated tests are:
+
+- `tests/test_cytogenetics.py`: checks the karyotype parser against known cases.
+- `tests/test_scores.py`: checks that the project's IPSS-M calculation matches the official implementation.
+
+Run the full workflow with `./run_all.sh` to execute the tests and regenerate the analyses and outputs.
+
+The environment uses the pinned package versions in `requirements.txt`. The `.venv/` directory is approximately 400 MB and can be deleted before sharing or zipping the project. Running `./run_all.sh` recreates it.
+
+### Rebuild the PDF report
+
+After editing the LaTeX source, run:
+
+```bash
+cd report
+tectonic Transplant_or_Wait_report.tex
+```
+
+Any LaTeX engine can be used. Figures are loaded from `outputs/figures/`.
+
+## 10. Project structure
+
+```text
+mds_tool/       Shared scoring, modelling, metrics and plotting code
+notebooks/      Data audit -> model comparison -> final tool
+scripts/        Model freezing and patient prediction
+tests/          Automated tests
+models/         Frozen model parameters
+outputs/        Figures, tables, validation results, cards and logs
+report/         PDF report and LaTeX source
+```
+
+The project brief provided by the instructor is not included in version control; it is excluded through `.gitignore`.
