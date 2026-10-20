@@ -1,0 +1,47 @@
+selection rule chose: IPSS-M
+between-centre tau = 0.208 on the log-hazard scale (18 centres)
+saved models/final_model.json  (alpha=0.0, s0(2y)=0.677)
+HB1             -0.286
+BLAST5           0.273
+TP53multi        0.245
+CYTOVEC          0.220
+TRANSF_PLT100   -0.151
+nRes2            0.122
+RUNX1            0.117
+MLL_PTD          0.099
+ASXL1            0.077
+SRSF2            0.072
+DNMT3A           0.068
+FLT3             0.066
+IDH2             0.064
+NRAS             0.063
+U2AF1            0.058
+EZH2             0.052
+CBL              0.052
+SF3B1_5q         0.049
+ETV6             0.046
+NPM1             0.038
+KRAS             0.027
+SF3B1_alpha     -0.025
+{
+ "mean_predicted_2y": 0.3615676259242643,
+ "observed_2y_km": 0.3602250693308011,
+ "share_flagged": 0.45867768595041325,
+ "predicted_quantiles": {
+  "0.1": 0.14302405758757594,
+  "0.25": 0.18366417155734727,
+  "0.5": 0.2733702981339702,
+  "0.75": 0.487475942978419,
+  "0.9": 0.7447284017390394
+ },
+ "input_means": {
+  "HB": 9.826238542449286,
+  "PLT": 170.97828700253945,
+  "BM_BLAST": 4.724417731029301,
+  "ANC": 2.393163492830987,
+  "WBC": 4.555165213946117,
+  "CYTOVEC": 1.4609958506224066,
+  "N_MUT": 3.1307287753568747
+ },
+ "missing_karyotype_share": 0.0946656649135988
+}

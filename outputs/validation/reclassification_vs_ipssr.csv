@@ -1,0 +1,5 @@
+IPSS-R,tool,patients,2-year mortality %
+lower risk,lower risk,1186,14.7
+lower risk,higher risk,253,45.7
+higher risk,lower risk,115,21.2
+higher risk,higher risk,828,63.2

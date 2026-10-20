@@ -1,0 +1,23 @@
+variable,feature,unit,published_hazard_ratio,hazard_ratio_this_cohort
+HB1,Haemoglobin,per g/dL,0.84,0.87
+TRANSF_PLT100,Platelets,"per 100 x10^9/L, capped at 250",0.8,0.83
+BLAST5,Marrow blasts,"per 5 %, capped at 20 %",1.42,1.34
+CYTOVEC,Karyotype risk group,"per IPSS-R step, very good (0) to very poor (4)",1.33,1.27
+TP53multi,TP53 multi-hit,"2+ TP53 mutations, or 1 with VAF > 55 % or 17p loss",3.25,2.65
+FLT3,FLT3 mutation,yes / no,2.22,1.94
+MLL_PTD,KMT2A (MLL) partial tandem duplication,yes / no,2.22,1.94
+SF3B1_5q,SF3B1 with del(5q),SF3B1 mutated with isolated del(5q),1.66,1.52
+NPM1,NPM1,yes / no,1.54,1.43
+RUNX1,RUNX1,yes / no,1.53,1.42
+NRAS,NRAS,yes / no,1.52,1.41
+ETV6,ETV6,yes / no,1.48,1.38
+IDH2,IDH2,yes / no,1.46,1.37
+CBL,CBL,yes / no,1.34,1.28
+EZH2,EZH2,yes / no,1.31,1.25
+U2AF1,U2AF1,yes / no,1.28,1.23
+SRSF2,SRSF2,yes / no,1.27,1.22
+DNMT3A,DNMT3A,yes / no,1.25,1.2
+ASXL1,ASXL1,yes / no,1.24,1.19
+KRAS,KRAS,yes / no,1.22,1.18
+SF3B1_alpha,"SF3B1, favourable form","SF3B1 mutated, no del(5q), none of SRSF2, STAG2, BCOR, BCORL1, RUNX1, NRAS",0.92,0.94
+nRes2,Other driver genes,"count of BCOR, BCORL1, CEBPA, ETNK1, GATA2, GNB1, IDH1, NF1, PHF6, PPM1D, PRPF8, PTPN11, SETBP1, STAG2, WT1, capped at 2",1.26,1.21

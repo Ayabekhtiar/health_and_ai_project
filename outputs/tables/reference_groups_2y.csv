@@ -1,0 +1,7 @@
+group,patients,median_survival_this_file,median_survival_published,mortality_2y
+Very Low,334,10.6,10.6,0.064
+Low,862,6.0,6.0,0.164
+Moderate Low,308,4.6,4.6,0.266
+Moderate High,282,2.6,2.8,0.388
+High,408,1.7,1.7,0.568
+Very High,468,1.0,1.0,0.78

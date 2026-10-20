@@ -1,0 +1,50 @@
+{
+  "cohort_flow": [
+    [
+      "Patients in the file",
+      3323
+    ],
+    [
+      "with a recorded outcome",
+      3173
+    ],
+    [
+      "with follow-up > 0 (53 censored at day 0 removed)",
+      3120
+    ],
+    [
+      "marrow blasts < 20 % (AML excluded)",
+      2968
+    ],
+    [
+      "WBC < 13 x10^9/L (proliferative MDS/MPN excluded)",
+      2770
+    ],
+    [
+      "blasts, Hb and platelets recorded  = INTENDED-USE COHORT",
+      2662
+    ],
+    [
+      "karyotype readable and ANC recorded = HEAD-TO-HEAD COHORT (IPSS-R computable)",
+      2382
+    ]
+  ],
+  "intended_use": {
+    "patients": 2662,
+    "deaths": 1299,
+    "median_followup_years": 3.83,
+    "km_death_2y": 0.3602,
+    "censored_before_2y": 601,
+    "followed_2y": 1248,
+    "followed_5y": 360,
+    "naive_2y_death_censored_as_alive": 0.3054,
+    "naive_2y_death_censored_dropped": 0.3945
+  },
+  "karyotype_missing": 252,
+  "no_mutation_recorded": 244,
+  "centres": 23,
+  "centre_2y_mortality_range_n20": [
+    0.16,
+    0.647
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "best_c": 0.7502741282516131,
+  "chosen": "IPSS-M",
+  "rule": "simplest within 0.005 of best pooled LOCO Harrell C (head-to-head) and O/E in [0.9, 1.1]",
+  "candidates": {
+    "IPSS-M": {
+      "harrell_c": 0.7502741282516131,
+      "o_e": 0.9802495355869187
+    },
+    "Cox (IPSS-M variables, refit)": {
+      "harrell_c": 0.746834940205454,
+      "o_e": 0.9640931862706982
+    },
+    "Cox (extended)": {
+      "harrell_c": 0.7464575643987362,
+      "o_e": 0.958254283340191
+    },
+    "Boosted trees (extended)": {
+      "harrell_c": 0.742068772802642,
+      "o_e": 0.9487084760608718
+    }
+  },
+  "alphas": {
+    "Cox (IPSS-M variables, refit)": [
+      0.02942420122840638,
+      0.03675099656601278,
+      0.047194454792578784
+    ],
+    "Cox (extended)": [
+      0.045199055160216495,
+      0.05693374162482832,
+      0.07220223306586121
+    ]
+  }
+}

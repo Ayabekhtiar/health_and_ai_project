@@ -1,0 +1,8 @@
+model,versus,delta_c,ci_low,ci_high
+IPSS-M,IPSS-R,0.0431,0.0324,0.0529
+"Cox (IPSS-M variables, refit)",IPSS-R,0.0397,0.0288,0.0498
+Cox (extended),IPSS-R,0.0393,0.0281,0.0495
+Boosted trees (extended),IPSS-R,0.0349,0.0229,0.0446
+"Cox (IPSS-M variables, refit)",IPSS-M,-0.0034,-0.0065,0.0002
+Cox (extended),IPSS-M,-0.0038,-0.0084,0.0011
+Boosted trees (extended),IPSS-M,-0.0082,-0.0152,-0.0018

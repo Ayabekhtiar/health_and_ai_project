@@ -1,0 +1,8 @@
+step,patients
+Patients in the file,3323
+with a recorded outcome,3173
+with follow-up > 0 (53 censored at day 0 removed),3120
+marrow blasts < 20 % (AML excluded),2968
+WBC < 13 x10^9/L (proliferative MDS/MPN excluded),2770
+"blasts, Hb and platelets recorded  = INTENDED-USE COHORT",2662
+karyotype readable and ANC recorded = HEAD-TO-HEAD COHORT (IPSS-R computable),2382
