@@ -17,6 +17,17 @@ benefit of transplant: the file records no treatment, age or fitness.
 | Notebooks, with every graph | `notebooks/01_data_audit.ipynb`, `02_model_comparison.ipynb`, `03_final_model_and_tool.ipynb` (already run: outputs visible without running) |
 | Working system | `scripts/predict.py` (scores patients), `outputs/cards/` (patient cards) |
 | Frozen model | `models/final_model.json` |
+| Code used by the notebooks | `mds_tool/`: `cohort.py` (loads the two files, cohort flow), `cytogenetics.py` (reads karyotypes, IPSS-R cytogenetic group), `features.py` (one row per patient, scope checks), `scores.py` (IPSS-R and IPSS-M with published weights), `model.py` (candidate models), `metrics.py` (C-index, AUC, Brier, calibration, net benefit, with censoring), `tool.py` (risk, range, band, patient card), `plotting.py` (figures) |
+| Model freezing | `scripts/03_train_final.py`: refits the selected model on all patients and writes `models/final_model.json`, `outputs/tables/model_features.csv`, `outputs/tables/final_model_weights.csv` and `outputs/train_log.txt` |
+| Tests | `tests/test_cytogenetics.py` (karyotype parser on known cases), `tests/test_scores.py` (our IPSS-M matches the official implementation) |
+| Training data | `df_clinical_train.tsv` (clinical data, one row per patient), `mut_clinical_train.tsv` (gene mutations, one row per mutation) |
+| Figures | `outputs/figures/`: F0 decision timeline, F1–F4 data audit, F5–F9 model comparison (discrimination, calibration, decision curve, subgroups, per centre), F10 patient cards |
+| Tables | `outputs/tables/`: cohort flow, centres, missing inputs, centre heterogeneity, 2-year mortality of the reference groups, model features and weights |
+| Validation results | `outputs/validation/`: out-of-centre predictions, metrics, paired C-index differences, calibration deciles, decision curve, decision rules, reclassification against IPSS-R, subgroups, per-centre results, `selection.json` (model chosen by the rule), `loco_cache.json` (cache fingerprint) |
+| Other outputs | `outputs/audit.json` (data audit summary), `outputs/predictions_training_file.csv` (tool output for every patient in the training file) |
+| Rebuild everything | `run_all.sh` (tests, notebooks, model freezing, cards; `--fresh` refits the held-out models) |
+| Environment | `requirements.txt` (pinned package versions) |
+| Not pushed | `.gitignore` (excludes `.venv/`, the slides, zip files and course material) |
 
 ## Read the notebooks
 
