@@ -1,7 +1,7 @@
 # Transplant or Wait
 
 Prognostic decision support for allogeneic transplant timing in myelodysplastic syndromes.
-Applied Artificial Intelligence for Health 2026–2027 · **Aya Bekhtiar, Apolline Hadjal**
+Health and AI · **Aya Bekhtiar, Apolline Hadjal**
 
 At the end of the diagnostic work-up, the tool estimates a patient's risk of death within
 2 years under standard care, and places it against the 30 % threshold at which early
