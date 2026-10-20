@@ -28,7 +28,6 @@ benefit of transplant: the file records no treatment, age or fitness.
 | Other outputs | `outputs/audit.json` (data audit summary), `outputs/predictions_training_file.csv` (tool output for every patient in the training file) |
 | Rebuild everything | `run_all.sh` (tests, notebooks, model freezing, cards; `--fresh` refits the held-out models) |
 | Environment | `requirements.txt` (pinned package versions) |
-| Not pushed | `.gitignore` (excludes `.venv/`, the slides, zip files and course material) |
 
 ## Read the notebooks
 
