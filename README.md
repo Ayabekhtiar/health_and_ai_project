@@ -15,7 +15,6 @@ benefit of transplant: the file records no treatment, age or fitness.
 | Deliverable | Where |
 | --- | --- |
 | Notebooks, with every graph | `notebooks/01_data_audit.ipynb`, `02_model_comparison.ipynb`, `03_final_model_and_tool.ipynb` (already run: outputs visible without running) |
-| Written report | `report/Transplant_or_Wait_report.pdf` (7 pages; LaTeX source `report/Transplant_or_Wait_report.tex`) |
 | Working system | `scripts/predict.py` (scores patients), `outputs/cards/` (patient cards) |
 | Frozen model | `models/final_model.json` |
 
